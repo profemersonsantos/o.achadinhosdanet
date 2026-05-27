@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@o.achadinhosdanet — Studio de Conteúdo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0703;--s1:#100d07;--s2:#181208;--s3:#201a0a;
+  --acc:#e86500;--acc2:#ff9200;--gold:#ffb700;--gold2:#ffd040;
+  --green:#22a84a;--red:#e63030;
+  --text:#fff8ee;--muted:#8a7560;--border:#2a2010;--border2:#3a3018;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+
+header{text-align:center;padding:14px 24px 10px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#120a02 0%,var(--bg) 100%);position:relative}
+header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),var(--gold),var(--acc2),transparent)}
+header h1{font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,#ff6b00 0%,#ffb700 50%,#ff9200 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+header p{color:var(--muted);font-size:.7rem;letter-spacing:3px;margin-top:2px;text-transform:uppercase}
+
+.grid{display:grid;grid-template-columns:260px 1fr 310px;gap:10px;padding:10px;height:calc(100vh - 62px)}
+
+.panel{background:var(--s1);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
+.ph{padding:11px 15px;border-bottom:1px solid var(--border);background:var(--s2);flex-shrink:0}
+.ph h2{font-family:'Nunito',sans-serif;font-size:.78rem;letter-spacing:2px;color:var(--gold);font-weight:800}
+.ph p{font-size:.66rem;color:var(--muted);margin-top:2px}
+.pb{flex:1;overflow-y:auto;padding:11px}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+.btn{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:.8rem;font-family:'Inter',sans-serif;transition:all .18s;font-weight:600}
+.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-gold{background:linear-gradient(135deg,var(--acc),var(--gold));color:#0a0703;font-weight:700}
+.btn-gold:hover{filter:brightness(1.1)}
+.btn-sm{padding:6px 10px;font-size:.72rem}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);background:rgba(255,183,0,.07)}
+.btn-full{width:100%;margin-bottom:7px}
+.btn-green{background:linear-gradient(135deg,#166b2e,#22a84a);color:#fff}
+.btn-green:hover{filter:brightness(1.15)}
+.btn-audio{background:linear-gradient(135deg,#1a3b6b,#2860cc);color:#fff}
+.btn-audio:hover{filter:brightness(1.15)}
+.btn-ai{background:linear-gradient(135deg,#4a1a6b,#8822cc);color:#fff}
+.btn-ai:hover{filter:brightness(1.15)}
+.btn-gemini{background:linear-gradient(135deg,#1a5296,#2575e8);color:#fff}
+.btn-gemini:hover{filter:brightness(1.15)}
+
+.searchbar{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:.82rem;width:100%;margin-bottom:9px;transition:border-color .2s}
+.searchbar:focus{outline:none;border-color:var(--gold)}
+.searchbar::placeholder{color:var(--muted)}
+
+.trend-item{padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:7px;cursor:pointer;transition:all .18s}
+.trend-item:hover{border-color:var(--border2);background:rgba(255,255,255,.02)}
+.trend-item.active{border-color:var(--acc);background:rgba(232,101,0,.1)}
+.trend-item .tt{font-size:.82rem;font-weight:700;margin-bottom:5px;line-height:1.3}
+.trend-item .tm{font-size:.68rem;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.62rem;font-weight:700;letter-spacing:.5px}
+.badge-hot{background:rgba(230,50,0,.2);color:#ff7755;border:1px solid rgba(230,50,0,.35)}
+.badge-trend{background:rgba(255,183,0,.18);color:var(--gold);border:1px solid rgba(255,183,0,.3)}
+.badge-new{background:rgba(50,200,100,.15);color:#60e884;border:1px solid rgba(50,200,100,.25)}
+.cat-tag{font-size:.6rem;color:var(--muted);background:var(--s3);padding:2px 7px;border-radius:10px}
+.price-tag{font-size:.62rem;color:#60e884;background:rgba(34,168,74,.12);padding:2px 7px;border-radius:10px;border:1px solid rgba(34,168,74,.25);font-weight:700}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--s2);flex-shrink:0;overflow-x:auto}
+.tab{padding:9px 13px;cursor:pointer;font-size:.73rem;color:var(--muted);transition:all .18s;border-bottom:2px solid transparent;white-space:nowrap;font-weight:600}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--gold);border-bottom-color:var(--acc)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+.copy-label{font-size:.66rem;color:var(--gold);letter-spacing:2px;margin-bottom:7px;font-weight:700;text-transform:uppercase}
+.copy-box{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:13px;font-size:.84rem;line-height:1.65;min-height:90px;white-space:pre-wrap;color:var(--text)}
+.copy-actions{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.hashtag-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.htag{background:rgba(232,101,0,.15);color:#ff9955;padding:3px 10px;border-radius:20px;font-size:.72rem;cursor:pointer;border:1px solid rgba(232,101,0,.3);transition:all .15s}
+.htag:hover{background:rgba(232,101,0,.3)}
+
+/* IMAGE PANEL */
+.canvas-wrap{display:flex;justify-content:center;margin-bottom:9px;position:relative}
+#previewCanvas{border:1px solid var(--border);border-radius:6px;display:block}
+.ai-badge{position:absolute;top:6px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4a1a6b,#8822cc);color:#fff;font-size:.6rem;padding:2px 10px;border-radius:10px;letter-spacing:1px;font-weight:700;display:none}
+.ai-badge.show{display:block}
+
+.ctrl-group{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.ctrl-label{font-size:.67rem;color:var(--muted);letter-spacing:.5px;font-weight:600}
+select,.slider,input[type=color]{background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px;width:100%;font-size:.78rem}
+select:focus,input:focus{outline:none;border-color:var(--gold)}
+.slider{padding:5px 0;accent-color:var(--acc)}
+input[type=color]{padding:3px;height:32px;cursor:pointer}
+
+.api-section{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:9px}
+.api-section-title{font-size:.65rem;color:var(--gold);letter-spacing:1.5px;font-weight:700;margin-bottom:6px}
+.api-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:.75rem;width:100%;font-family:monospace;letter-spacing:.5px}
+.api-input:focus{outline:none;border-color:var(--gold)}
+.api-input::placeholder{color:var(--muted);font-family:'Inter',sans-serif;letter-spacing:0}
+.api-note{font-size:.62rem;color:var(--muted);margin-top:5px;line-height:1.4}
+
+.audio-section{background:rgba(26,59,107,.15);border:1px solid rgba(40,96,204,.2);border-radius:8px;padding:10px;margin-top:11px}
+.audio-title{font-size:.67rem;color:#88ccff;letter-spacing:1.5px;font-weight:700;margin-bottom:8px}
+.voice-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.voice-row select{flex:1;font-size:.75rem}
+audio{width:100%;border-radius:6px;background:var(--s2)}
+
+.loading-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(10,7,3,.88);display:none;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;z-index:10}
+.loading-overlay.show{display:flex}
+.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px}
+.loading-text{font-size:.75rem;color:var(--acc);letter-spacing:1px;text-align:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spin-icon{to{transform:rotate(360deg)}}
+.spinning{animation:spin-icon .8s linear infinite;display:inline-block}
+
+.score-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.score-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--gold));border-radius:2px;transition:width .5s}
+
+.divider{border:none;border-top:1px solid var(--border);margin:10px 0}
+.empty{color:var(--muted);text-align:center;padding:26px 10px;font-size:.82rem;line-height:1.6}
+
+#toast{position:fixed;bottom:20px;right:20px;background:var(--s2);border:1px solid var(--acc);border-radius:8px;padding:10px 18px;font-size:.82rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+#toast.show{opacity:1}
+
+.text-panel-box{background:rgba(232,101,0,.07);border:1px solid rgba(232,101,0,.22);border-radius:8px;padding:10px;margin-bottom:9px}
+.text-panel-title{font-size:.65rem;color:var(--gold);letter-spacing:1.5px;font-weight:700;margin-bottom:7px}
+.text-panel-copy{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:.8rem;line-height:1.6;white-space:pre-wrap;color:var(--text);max-height:130px;overflow-y:auto}
+
+/* DEAL BADGE no canvas */
+.deal-badge-wrap{text-align:center;margin-bottom:4px}
+
+/* ═══ GEMINI MODAL ═══ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;z-index:1000;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal-box{
+  background:linear-gradient(160deg,#18120a 0%,#0e0a06 100%);
+  border:1px solid rgba(255,150,0,.25);border-radius:16px;
+  width:min(540px,94vw);max-height:88vh;display:flex;flex-direction:column;
+  box-shadow:0 8px 60px rgba(0,0,0,.7),0 0 0 1px rgba(255,150,0,.1);
+  transform:translateY(18px);transition:transform .28s;overflow:hidden;
+}
+.modal-overlay.show .modal-box{transform:translateY(0);}
+.modal-header{
+  display:flex;align-items:center;gap:10px;
+  padding:16px 20px 14px;border-bottom:1px solid rgba(255,150,0,.15);
+  background:rgba(255,150,0,.06);flex-shrink:0;
+}
+.modal-header .m-icon{font-size:1.3rem;}
+.modal-header h3{font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:800;color:var(--gold);letter-spacing:.5px;flex:1;}
+.modal-steps{display:flex;gap:6px;align-items:center;font-size:.67rem;color:var(--muted);flex-wrap:wrap;}
+.modal-steps .arr{color:rgba(255,150,0,.5);}
+.modal-steps span{color:var(--acc2);font-weight:600;}
+.modal-body{flex:1;overflow-y:auto;padding:16px 20px;}
+
+/* Dica de imagem */
+.img-tip{
+  display:flex;gap:10px;align-items:flex-start;
+  background:rgba(40,180,80,.08);border:1px solid rgba(40,180,80,.2);
+  border-radius:10px;padding:12px 14px;margin-bottom:14px;
+}
+.img-tip .tip-icon{font-size:1.4rem;flex-shrink:0;margin-top:1px;}
+.img-tip h4{font-size:.78rem;font-weight:700;color:#60e884;margin-bottom:3px;}
+.img-tip p{font-size:.72rem;color:#aaa;line-height:1.5;}
+.img-tip .tip-steps{margin-top:6px;display:flex;flex-direction:column;gap:3px;}
+.img-tip .tip-steps span{font-size:.69rem;color:#bbb;display:flex;gap:6px;align-items:baseline;}
+.img-tip .tip-steps .num{color:var(--acc2);font-weight:700;font-size:.72rem;flex-shrink:0;}
+
+/* Prompt box */
+.prompt-label{font-size:.65rem;color:var(--gold);letter-spacing:2px;font-weight:700;text-transform:uppercase;margin-bottom:8px;}
+.prompt-box{
+  background:#07050300;border:1px solid rgba(255,150,0,.18);border-radius:10px;
+  padding:14px;font-size:.8rem;line-height:1.65;color:var(--text);
+  max-height:200px;overflow-y:auto;white-space:pre-wrap;
+  font-family:'Inter',sans-serif;
+}
+.prompt-box::-webkit-scrollbar{width:4px;}
+.prompt-box::-webkit-scrollbar-thumb{background:rgba(255,150,0,.25);border-radius:2px;}
+
+.modal-footer{
+  padding:14px 20px;border-top:1px solid rgba(255,150,0,.12);
+  display:flex;flex-direction:column;gap:8px;flex-shrink:0;
+  background:rgba(0,0,0,.25);
+}
+.btn-modal-copy{
+  background:linear-gradient(135deg,#5a1a9b,#9922ee);color:#fff;border:none;
+  border-radius:9px;padding:12px;cursor:pointer;font-size:.85rem;font-weight:700;
+  font-family:'Inter',sans-serif;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-modal-copy:hover{filter:brightness(1.15);transform:translateY(-1px);}
+.btn-modal-copy.copied{background:linear-gradient(135deg,#1a6b2e,#22aa44);}
+.btn-modal-open{
+  background:linear-gradient(135deg,#1a5296,#2575e8);color:#fff;border:none;
+  border-radius:9px;padding:12px;cursor:pointer;font-size:.85rem;font-weight:700;
+  font-family:'Inter',sans-serif;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-modal-open:hover{filter:brightness(1.15);transform:translateY(-1px);}
+.btn-modal-close{
+  background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--muted);
+  border-radius:9px;padding:10px;cursor:pointer;font-size:.8rem;font-weight:600;
+  font-family:'Inter',sans-serif;transition:all .18s;
+}
+.btn-modal-close:hover{border-color:rgba(255,255,255,.25);color:var(--text);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🛍️ @o.achadinhosdanet</h1>
+  <p>Studio de Conteúdo · Instagram &amp; TikTok · Afiliado</p>
+</header>
+
+<div class="grid">
+
+  <!-- ═══ TRENDS PANEL ═══ -->
+  <div class="panel">
+    <div class="ph"><h2>🔥 ACHADOS EM ALTA</h2><p>Clique em um achado para gerar o conteúdo</p></div>
+    <div class="pb">
+      <input class="searchbar" type="text" placeholder="🔍 Filtrar por produto..." oninput="filterTrends(this.value)">
+      <button class="btn btn-gold btn-full" onclick="searchWeb()"><span id="refreshIcon">🔄</span> Buscar Novos Achados</button>
+      <div id="trendList"></div>
+    </div>
+  </div>
+
+  <!-- ═══ COPY PANEL ═══ -->
+  <div class="panel">
+    <div class="ph"><h2>✍️ COPY & GANCHO</h2><p id="selectedLabel">Nenhum achado selecionado</p></div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('hook')">🪝 Gancho</div>
+      <div class="tab" onclick="switchTab('legenda')">📝 Legenda</div>
+      <div class="tab" onclick="switchTab('hashtags')">🏷️ Hashtags</div>
+      <div class="tab" onclick="switchTab('score')">📊 Análise</div>
+    </div>
+    <div class="pb">
+
+      <!-- GANCHO -->
+      <div id="tab-hook" class="tab-content active">
+        <div class="copy-label">TEXTO GANCHO — 3 PRIMEIROS SEGUNDOS</div>
+        <div class="copy-box" id="hookText"><span style="color:var(--muted);font-style:italic">← Selecione um achado para gerar o gancho</span></div>
+        <div class="copy-actions">
+          <button class="btn btn-sm" onclick="copyText('hookText')">📋 Copiar</button>
+          <button class="btn btn-sm btn-outline" onclick="nextHook()">🔀 Outro Modelo</button>
+          <button class="btn btn-sm btn-gold" onclick="applyToImage()">🖼️ Aplicar na Imagem</button>
+        </div>
+        <hr class="divider">
+        <div class="copy-label">VARIAÇÕES DISPONÍVEIS</div>
+        <div id="hookVariants" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <!-- LEGENDA -->
+      <div id="tab-legenda" class="tab-content">
+        <div class="copy-label">LEGENDA COMPLETA</div>
+        <div class="copy-box" id="legendaText" style="min-height:200px"><span style="color:var(--muted);font-style:italic">← Selecione um achado para gerar a legenda</span></div>
+        <div class="copy-actions">
+          <button class="btn btn-sm" onclick="copyText('legendaText')">📋 Copiar Legenda</button>
+          <button class="btn btn-sm btn-outline" onclick="regenerateLegenda()">🔀 Regenerar</button>
+        </div>
+        <div class="audio-section">
+          <div class="audio-title">🎙️ NARRAÇÃO DO REEL</div>
+          <div class="voice-row">
+            <select id="voiceSelect">
+              <option value="Puck">Puck — Animada &amp; Energética ✅</option>
+              <option value="Aoede">Aoede — Feminina Suave</option>
+              <option value="Charon">Charon — Masculina Confiante</option>
+              <option value="Fenrir">Fenrir — Masculina Intensa</option>
+              <option value="Kore">Kore — Feminina Vibrante</option>
+            </select>
+          </div>
+          <button class="btn btn-audio btn-full" onclick="generateAudio()" id="audioBtn">🎵 Gerar e Baixar Áudio (MP3)</button>
+          <div id="audioPlayerWrap" style="display:none"><audio id="audioPlayer" controls></audio></div>
+          <div class="api-note">⚠️ Usa sua chave Gemini API (painel da imagem)</div>
+        </div>
+      </div>
+
+      <!-- HASHTAGS -->
+      <div id="tab-hashtags" class="tab-content">
+        <div class="copy-label">HASHTAGS DO ACHADO</div>
+        <div id="hashtagList" class="hashtag-wrap"><span style="color:var(--muted);font-size:.82rem">← Selecione um achado</span></div>
+        <div class="copy-actions" style="margin-top:13px">
+          <button class="btn btn-sm" onclick="copyHashtags()">📋 Copiar Todas</button>
+        </div>
+        <hr class="divider">
+        <div class="copy-label">HASHTAGS FIXAS DO PERFIL</div>
+        <div class="hashtag-wrap">
+          <span class="htag">#achadinhos</span><span class="htag">#achadinhosdarede</span>
+          <span class="htag">#achadinhosdasemana</span><span class="htag">#oachadinhosdanet</span>
+          <span class="htag">#promoção</span><span class="htag">#comprasinteligentes</span>
+          <span class="htag">#dicasdecompra</span><span class="htag">#shopee</span>
+        </div>
+      </div>
+
+      <!-- ANÁLISE -->
+      <div id="tab-score" class="tab-content">
+        <div class="copy-label">ANÁLISE DE CONVERSÃO</div>
+        <div id="scorePanel"><div class="empty">← Selecione um achado para ver a análise</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ IMAGE PANEL ═══ -->
+  <div class="panel">
+    <div class="ph"><h2>🖼️ IMAGEM 9:16</h2><p>Flux Realism · Google Gemini · Download limpo</p></div>
+    <div class="pb">
+
+      <div class="canvas-wrap">
+        <div style="position:relative">
+          <canvas id="previewCanvas" width="216" height="384"></canvas>
+          <div class="ai-badge" id="aiBadge">✨ FLUX AI</div>
+          <div class="loading-overlay" id="imgLoading">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loadingText">Gerando imagem<br>com Flux AI...</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="textPanel" style="display:none">
+        <div class="text-panel-box">
+          <div class="text-panel-title">📝 TEXTO DO REEL — COPIE SEPARADO</div>
+          <div class="text-panel-copy" id="panelHookText"></div>
+          <div class="copy-actions" style="margin-top:7px">
+            <button class="btn btn-sm" onclick="copyPanelText()">📋 Copiar Texto</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="api-section">
+        <div class="api-section-title">🔑 GEMINI API KEY</div>
+        <input class="api-input" type="password" id="geminiKey" placeholder="Cole sua chave Gemini API aqui...">
+        <div class="api-note">Para áudio TTS e imagem Gemini. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--gold)">Pegar chave grátis →</a></div>
+      </div>
+
+      <div style="display:flex;gap:7px;margin-bottom:7px">
+        <button class="btn btn-ai" style="flex:1;font-size:.73rem" onclick="generateAIImage()" id="aiBtn">
+          🎨 Flux Realism<br><span style="font-size:.64rem;opacity:.8">(Grátis, sem chave)</span>
+        </button>
+        <button class="btn btn-gemini" style="flex:1;font-size:.73rem" onclick="generateGeminiImage()" id="geminiImgBtn">
+          🤖 Google Gemini<br><span style="font-size:.64rem;opacity:.8">↗ Abre + copia prompt</span>
+        </button>
+      </div>
+      <button class="btn btn-outline btn-full" onclick="clearAIImage()" id="clearAiBtn" style="display:none;margin-bottom:7px">✕ Voltar para canvas manual</button>
+
+      <hr class="divider" style="margin:5px 0 9px">
+
+      <div class="ctrl-group">
+        <label class="ctrl-label">ESTILO DE FUNDO (CANVAS)</label>
+        <select id="bgStyle" onchange="renderImage()">
+          <option value="oferta">🔥 Oferta Relâmpago</option>
+          <option value="clean">✨ Produto Limpo</option>
+          <option value="neon">💜 Neon Dark</option>
+          <option value="shopee">🟠 Laranja Shopee</option>
+          <option value="minimal">⬜ Minimalista</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">INTENSIDADE DO DESTAQUE</label>
+        <input type="range" class="slider" id="glowIntensity" min="10" max="100" value="70" oninput="renderImage()">
+      </div>
+      <div class="ctrl-group" style="display:flex;flex-direction:row;gap:8px;align-items:flex-end">
+        <div style="flex:1">
+          <label class="ctrl-label">COR DE DESTAQUE</label>
+          <input type="color" id="glowColor" value="#ff6b00" oninput="renderImage()">
+        </div>
+        <div style="flex:1">
+          <label class="ctrl-label">POSIÇÃO DO TEXTO</label>
+          <select id="textPos" onchange="renderImage()">
+            <option value="bottom">Inferior</option>
+            <option value="center">Centro</option>
+            <option value="top">Superior</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-gold btn-full" onclick="downloadImage()" id="downloadBtn">⬇️ Baixar Imagem 1080×1920</button>
+      <div id="downloadNote" style="display:none;font-size:.65rem;color:var(--gold);text-align:center;margin:-4px 0 6px;opacity:.8">✓ Imagem limpa, sem texto sobreposto</div>
+      <button class="btn btn-outline btn-full" onclick="renderImage()" style="margin-bottom:0">🔄 Atualizar Preview</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ GEMINI MODAL ═══ -->
+<div class="modal-overlay" id="geminiModal" onclick="closeModalOnBg(event)">
+  <div class="modal-box">
+
+    <div class="modal-header">
+      <span class="m-icon">🤖</span>
+      <h3>PROMPT PARA O GOOGLE GEMINI</h3>
+      <div class="modal-steps">
+        <span>1. Copie o prompt</span>
+        <span class="arr">→</span>
+        <span>2. Abra o Gemini</span>
+        <span class="arr">→</span>
+        <span>3. Anexe a foto do produto</span>
+        <span class="arr">→</span>
+        <span>4. Cole e gere</span>
+      </div>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Dica de imagem -->
+      <div class="img-tip">
+        <span class="tip-icon">📸</span>
+        <div>
+          <h4>Anexe a foto real do produto!</h4>
+          <p>Para gerar uma imagem 9:16 profissional e cinematográfica, o Gemini precisa da foto real do produto. Siga os passos:</p>
+          <div class="tip-steps">
+            <span><span class="num">①</span> Copie o prompt abaixo</span>
+            <span><span class="num">②</span> Abra o Google Gemini (botão abaixo)</span>
+            <span><span class="num">③</span> Clique no ícone 📎 e anexe a foto do produto (da Shopee/Amazon)</span>
+            <span><span class="num">④</span> Cole o prompt e clique em enviar</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prompt -->
+      <div class="prompt-label">📋 Prompt gerado automaticamente</div>
+      <div class="prompt-box" id="modalPromptText">← Selecione um achado para gerar o prompt</div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-modal-copy" id="btnCopyPrompt" onclick="copyModalPrompt()">
+        📋 Copiar Prompt
+      </button>
+      <button class="btn-modal-open" onclick="openGemini()">
+        🔗 Abrir Google Gemini
+      </button>
+      <button class="btn-modal-close" onclick="closeGeminiModal()">
+        ✕ Fechar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// TRENDS DATABASE — ACHADOS DA NET
+// ═══════════════════════════════════════════
+const TRENDS = [
+  {
+    id:1,title:"Fone Bluetooth TWS por menos de R$40",cat:"eletronicos",badge:"hot",score:97,price:"R$38",
+    viralScore:{hook:96,legenda:90,visual:93},
+    keys:["fone","bluetooth","tws","airpods","musica","barato"],
+    hooks:[
+      "ESSE FONE parece de R$200...\nmas custa menos de R$40 na Shopee!\nLink na bio antes de acabar 🛒",
+      "Chega de pagar CARO em fone sem fio!\nAchei um TWS incrível por R$38 — testei e aprovei.\n(link na bio 👆)",
+      "Todo mundo está comprando esse fone agora...\ne eu entendi o porquê quando ele chegou aqui.\n(veja na legenda 👇)"
+    ],
+    legenda:`🎧 Achado da semana: fone TWS por R$38!\n\nJá testei e não acredito na qualidade por esse preço.\n\n✅ O que tem:\n• Conexão Bluetooth 5.3 estável\n• Bateria de 6h (24h com o case)\n• Cancelamento de ruído básico\n• Som limpo, sem distorção\n• Encaixe confortável\n\n❌ O que não tem:\n• ANC profissional (não esperava por esse preço)\n\n🔑 Custo-benefício absurdo para quem quer qualidade sem gastar muito.\n\nAcesse o link na bio 👆 e garanta o seu!\nEstoque limitado — vi o preço subir antes!`,
+    tags:["#fone","#fonebluetooth","#tws","#eletronicos","#achadinhos","#shopee","#tecnologia","#gadgets","#custo-beneficio","#musica","#barato"]
+  },
+  {
+    id:2,title:"Suporte magnético veicular 360° — R$18",cat:"eletronicos",badge:"hot",score:94,price:"R$18",
+    viralScore:{hook:92,legenda:88,visual:90},
+    keys:["suporte","carro","magnetico","celular","veicular","waze"],
+    hooks:[
+      "ESSE SUPORTE DE CARRO mudou minha vida.\nCusta R$18 e é melhor que um de R$150.\n🛒 Link na bio!",
+      "Adeus suporte ruim que cai no meio da viagem!\nEsse é magnético, 360° e custa DEZESSETE REAIS.\n(link na bio 👆)",
+      "Coloquei o celular nesse suporte e nunca mais tirei.\nCusta menos de R$20 na Shopee — obrigado quem indicou!\n👇 legenda"
+    ],
+    legenda:`🚗 Suporte magnético veicular por R$18 — testei por 30 dias!\n\nResultado: NUNCA caiu, nunca soltou, nunca aqueceu o celular.\n\n✅ Diferenciais:\n• Fixação magnética fortíssima (segura celular grande)\n• Rotação 360° para qualquer ângulo\n• Encaixa no ventilador sem risco\n• Montagem em 10 segundos\n• Funciona com qualquer celular (com a platininha magnética inclusa)\n\n💡 Dica: coloque a platininha magnética entre o celular e a capinha — não atrapalha o carregamento.\n\nLink direto na bio 👆\nPreço pode voltar para R$45 a qualquer momento!`,
+    tags:["#suporteveiculo","#suportecelular","#carro","#eletronicos","#achadinhos","#shopee","#gadgets","#gps","#waze","#tecnologia","#viagem"]
+  },
+  {
+    id:3,title:"Kit organização gaveta e guarda-roupa",cat:"casa",badge:"trend",score:88,price:"R$25",
+    viralScore:{hook:86,legenda:89,visual:91},
+    keys:["organização","gaveta","guarda-roupa","divisor","caixa"],
+    hooks:[
+      "MEU GUARDA-ROUPA ficou assim depois de R$25.\nIsso mudou completamente minha rotina!\n🛒 Link na bio",
+      "Se o seu guarda-roupa parece um CAOS...\nesse kit de R$25 vai resolver em 30 minutos.\n(veja o antes e depois na legenda 👇)",
+      "Todo mundo que viu minha gaveta agora pergunta:\n'Como você organizou assim?'\nCustou R$25 no link da bio 👆"
+    ],
+    legenda:`🗂️ Kit de organização por R$25 que valeu MUITO!\n\nTransformou completamente meu guarda-roupa e gavetas.\n\n📦 O que vem no kit:\n• 6 divisórias de gaveta ajustáveis\n• 4 caixas organizadoras com tampa\n• 2 suportes para sapato\n• Material plástico resistente e lavável\n\n✅ Por que é bom:\n• Módulos encaixam em qualquer tamanho de gaveta\n• Material durável, não amarela fácil\n• Visual clean e elegante\n• Fácil de limpar\n\n⏱️ Leva 30 minutos para organizar tudo e a diferença é absurda.\n\nLink na bio 👆 — Shopee entrega em 3 a 7 dias!`,
+    tags:["#organização","#guarda-roupa","#gaveta","#casa","#achadinhos","#shopee","#organizacaocasa","#minimalism","#homeoffice","#limpeza","#rotina"]
+  },
+  {
+    id:4,title:"Luz LED RGB para quarto — controle pelo celular",cat:"casa",badge:"hot",score:92,price:"R$32",
+    viralScore:{hook:91,legenda:87,visual:95},
+    keys:["led","rgb","luz","quarto","fita","controle","decoração"],
+    hooks:[
+      "MEU QUARTO ficou ASSIM com R$32 de LED RGB.\nAlguém pediu para sair da minha casa desde então 😅\n🛒 Link na bio!",
+      "R$32 de LED e o quarto virou outro ambiente.\nControle pelo celular, 16 milhões de cores.\nLink na bio 👆",
+      "Esse LED RGB é o achado que todo mundo quer no quarto.\nCustou R$32 e a diferença é ABSURDA.\n👇 veja mais"
+    ],
+    legenda:`💡 LED RGB para quarto por R$32 — vale MUITO!\n\nTransformou o ambiente completamente.\n\n✅ Especificações:\n• 5 metros de fita LED\n• 16 milhões de cores (RGB+W)\n• Controle via aplicativo pelo celular\n• Sincroniza com música (modo beat)\n• Instalação com fita adesiva 3M — não danifica a parede\n• Fonte inclusa, plug brasileiro\n\n🎨 Modos disponíveis:\n• Cor sólida estática\n• Transição de cores automática\n• Modo festa (pisca no ritmo da música)\n• Modo relaxar (cores suaves)\n\n✨ O app é gratuito e funciona com iOS e Android.\n\nLink na bio 👆 — Estoque esgota rápido nesse preço!`,
+    tags:["#ledrgb","#decoração","#quarto","#fitaled","#casa","#achadinhos","#shopee","#homedesign","#luminaria","#ambientacao","#setup"]
+  },
+  {
+    id:5,title:"Relógio Smartwatch Completo por R$79",cat:"eletronicos",badge:"hot",score:95,price:"R$79",
+    viralScore:{hook:94,legenda:92,visual:90},
+    keys:["smartwatch","relógio","relogio","smart","frequencia","passos","apple watch"],
+    hooks:[
+      "ESSE SMARTWATCH custa R$79 e faz tudo que um de R$800 faz.\nNão é piada — veja na legenda 👇",
+      "Chega de pagar R$800 em smartwatch!\nEsse aqui por R$79 mede tudo e ainda dura 7 dias de bateria.\n🛒 Link na bio",
+      "Testei esse smartwatch por 2 semanas e vou ser HONESTO:\nnão esperava essa qualidade por R$79.\n(resultado completo na legenda 👇)"
+    ],
+    legenda:`⌚ Smartwatch completo por R$79 — meu relato honesto!\n\nUsei por 2 semanas antes de recomendar. Valeu.\n\n✅ O que ele faz:\n• Monitor de frequência cardíaca (contínuo)\n• SpO2 (saturação de oxigênio)\n• 100+ modos esportivos\n• GPS conectado ao celular\n• Notificações de apps (WhatsApp, Instagram etc.)\n• Chamadas pelo pulso (bluetoot)\n• Bateria: 7 dias de uso real\n• À prova d'água IP68\n\n📱 App compatível com Android e iPhone.\n\n❌ O que não tem:\n• GPS nativo integrado (usa o do celular)\n• App Store própria\n\n⭐ Para o preço? É ABSURDO o que entrega.\n\nLink na bio 👆 — Pega antes de acabar!`,
+    tags:["#smartwatch","#relógio","#wearable","#eletronicos","#achadinhos","#shopee","#fitness","#saude","#tecnologia","#gadgets","#barato"]
+  },
+  {
+    id:6,title:"Carregador sem fio magnético 15W — R$45",cat:"eletronicos",badge:"new",score:83,price:"R$45",
+    viralScore:{hook:82,legenda:84,visual:86},
+    keys:["carregador","sem fio","wireless","magnetico","magsafe","15w"],
+    hooks:[
+      "ESSE CARREGADOR sem fio por R$45 mudou como eu uso meu celular.\nChega de cabo enrolado!\n🛒 Link na bio",
+      "R$45 de carregador magnético e adeus cabo USB para sempre.\nCompatível com iPhone e Android!\n(link na bio 👆)",
+      "Testei esse carregador sem fio barato com ceticismo...\nfui surpreendido. Veja na legenda 👇"
+    ],
+    legenda:`⚡ Carregador sem fio magnético 15W por R$45!\n\nSim, funciona. Sim, carrega rápido. Sim, vale.\n\n✅ Especificações:\n• Potência: 15W (carregamento rápido)\n• Magnético: alinha automaticamente no celular\n• Compatível com iPhone 12+ (MagSafe), Samsung e outros\n• Cabo USB-C incluso (1.5m)\n• Indicador LED de carregamento\n• Design slim — não ocupa espaço\n\n⏱️ Tempo de carga:\n• 0% a 50%: ~45 minutos\n• 0% a 100%: ~1h50min\n\n💡 Dica: se seu celular não é magnético, vem com uma platininha adesiva para instalar na capinha.\n\nLink na bio 👆 para garantir o seu!`,
+    tags:["#carregador","#wireless","#semfio","#magsafe","#eletronicos","#achadinhos","#shopee","#tecnologia","#iphone","#android","#gadgets"]
+  },
+  {
+    id:7,title:"Mini aspirador de mão sem fio — R$49",cat:"casa",badge:"trend",score:86,price:"R$49",
+    viralScore:{hook:85,legenda:88,visual:84},
+    keys:["aspirador","mao","sem fio","portatil","limpeza","carro","migas"],
+    hooks:[
+      "ESSE MINI ASPIRADOR por R$49 é o achado da casa!\nLimpo migas, poeira e cabelo em segundos.\n🛒 Link na bio",
+      "Meu tapete, sofá e carro nunca foram tão fáceis de limpar.\nAchei esse aspirador de mão por R$49 — virei fã!\n(link na bio 👆)",
+      "Se você tem pet ou come perto do notebook...\nvocê PRECISA desse aspirador de R$49.\n👇 veja na legenda"
+    ],
+    legenda:`🌀 Mini aspirador de mão sem fio por R$49!\n\nComprei sem muita expectativa. Me arrependi de não ter comprado antes.\n\n✅ O que tem:\n• Sucção de 8500 PA (forte para o tamanho)\n• Bateria de 30 min de uso contínuo\n• Carga via USB-C\n• 3 bicos adaptadores inclusos\n• Filtro lavável (não precisa trocar)\n• Capacidade do reservatório: 300ml\n• Leve (360g) — fácil de segurar\n\n🐾 Perfeito para:\n• Migas no sofá e tapete\n• Cabelo de pet\n• Interior do carro\n• Mesa do trabalho/escritório\n• Cantos difíceis de chegar\n\nLink na bio 👆 — entrega rápida!`,
+    tags:["#aspirador","#limpeza","#casa","#achadinhos","#shopee","#miniaspirador","#pet","#organizacao","#homecare","#praticidade","#rotina"]
+  },
+  {
+    id:8,title:"Kit Skincare completo por R$55",cat:"beleza",badge:"hot",score:90,price:"R$55",
+    viralScore:{hook:89,legenda:91,visual:88},
+    keys:["skincare","pele","hidratante","vitamina c","rotina","beleza","rosto"],
+    hooks:[
+      "ESSE KIT SKINCARE por R$55 me fez parar de gastar R$300 em produtos.\nResultado em 15 dias — veja na legenda 👇",
+      "Minha pele nunca ficou tão bonita e custou CINQUENTA E CINCO REAIS.\nEssa rotina de skincare barata vale demais!\n🛒 Link na bio",
+      "Investi R$55 em skincare e meu rosto mudou em 2 semanas.\nVou mostrar exatamente o que comprei 👇"
+    ],
+    legenda:`✨ Kit Skincare completo por R$55 — meu resultado honesto!\n\nSemana 1: pele mais hidratada\nSemana 2: manchas menos visíveis\nSemana 3-4: olheiras e cansaço visivelmente melhores\n\n📦 O kit contém:\n• Sérum de Vitamina C 30ml\n• Hidratante facial oil-free 50ml\n• Protetor solar FPS50 40g\n• Tônico facial com Niacinamida 100ml\n• Máscara facial de argila 2 unid.\n\n🌙 Rotina sugerida:\n\nMANHÃ: Tônico → Vitamina C → Hidratante → Protetor\nNOITE: Tônico → Vitamina C → Hidratante\n\n💡 Dica: use os produtos NESSA ordem para melhor absorção.\n\nLink na bio 👆 — também serve para homens!`,
+    tags:["#skincare","#pele","#beleza","#vitamina-c","#hidratante","#rotinaskincare","#achadinhos","#shopee","#cuidados","#maquiagem","#auto-cuidado"]
+  },
+  {
+    id:9,title:"Suporte para notebook com 6 regulagens",cat:"home-office",badge:"trend",score:85,price:"R$62",
+    viralScore:{hook:84,legenda:86,visual:83},
+    keys:["notebook","suporte","ergonomico","home office","postura","mesa"],
+    hooks:[
+      "ESSE SUPORTE DE NOTEBOOK por R$62 acabou com minha dor no pescoço.\nInvestimento que vale demais para quem trabalha em casa!\n🛒 Link na bio",
+      "Minha postura melhorou em 1 semana com esse suporte de R$62.\nAlguém mais trabalhava inclinado assim? 😅\n(link na bio 👆)",
+      "Trabalha de home office com notebook?\nEsse suporte de R$62 é o achado mais útil que já comprei.\n👇 legenda completa"
+    ],
+    legenda:`💻 Suporte de notebook ergonômico por R$62!\n\nComecei a usar e em 3 dias a dor no pescoço já tinha diminuído.\n\n✅ Especificações:\n• 6 níveis de altura ajustável (10cm a 28cm)\n• Compatível com notebooks de 10" a 17"\n• Suporta até 10kg\n• Dobrável e portátil (leve 550g)\n• Acabamento em alumínio (não esquenta)\n• Abertura frontal para ventilação do notebook\n• Antiderrapante na base e no suporte\n\n🎯 Ideal para:\n• Home office\n• Estudantes\n• Quem usa dois monitores\n• Quem sente dor no pescoço/costas\n\n💡 Dica: use com teclado e mouse externos para postura ideal.\n\nLink na bio 👆 — ergonomia não tem preço!`,
+    tags:["#homeoffice","#notebook","#suporte","#ergonomia","#trabalho","#achadinhos","#shopee","#setup","#postura","#home","#produtividade"]
+  },
+  {
+    id:10,title:"Garrafa térmica 1L — 24h gelada",cat:"casa",badge:"hot",score:93,price:"R$42",
+    viralScore:{hook:92,legenda:89,visual:87},
+    keys:["garrafa","térmica","agua","gelada","quente","inox","stanley"],
+    hooks:[
+      "ESSA GARRAFA TÉRMICA de R$42 deixa a água gelada por 24 HORAS.\nTestei no verão — confirmado!\n🛒 Link na bio",
+      "Chega de pagar R$300 em Stanley!\nEssa garrafa térmica por R$42 faz a mesma coisa.\n(link na bio 👆)",
+      "Todo mundo tem uma garrafa cara em casa...\nou essa que encontrei por R$42 e é IGUAL.\n👇 minha comparação"
+    ],
+    legenda:`💧 Garrafa térmica 1L por R$42 — duelo com a Stanley!\n\nFiz o teste: deixei água gelada nas duas. Resultado às 24h: IGUAIS.\n\n✅ Especificações:\n• Capacidade: 1 litro\n• Mantém gelado: até 24 horas\n• Mantém quente: até 12 horas\n• Material: aço inox 304 (seguro, sem BPA)\n• Parede dupla com vácuo\n• Tampa com alça de transporte\n• Boca larga (fácil de limpar e colocar gelo)\n• Disponível em 6 cores\n\n🧊 Teste honesto:\n• Coloquei água gelada às 8h da manhã\n• Às 20h ainda tinha gelo\n• Às 8h do dia seguinte: bem gelada ainda\n\nLink na bio 👆 para garantir a sua!`,
+    tags:["#garrafa","#garrafatermica","#agua","#stanley","#inox","#achadinhos","#shopee","#fitness","#academia","#verao","#hidratacao"]
+  },
+  {
+    id:11,title:"Cabide de veludo antiderrapante 50 unid — R$28",cat:"casa",badge:"new",score:79,price:"R$28",
+    viralScore:{hook:78,legenda:82,visual:80},
+    keys:["cabide","veludo","antiderrapante","roupa","guarda-roupa","organização"],
+    hooks:[
+      "50 CABIDES DE VELUDO por R$28 — e o guarda-roupa dobrou de espaço.\nIsso é 56 centavos por cabide!\n🛒 Link na bio",
+      "Troquei todos os cabides de plástico por esses de veludo.\nOcupam METADE do espaço e a roupa não cai mais!\n(link na bio 👆)",
+      "Esse é o achado de casa mais subestimado da Shopee.\n50 cabides de veludo por R$28 — quem ainda não tem?\n👇"
+    ],
+    legenda:`👗 50 cabides de veludo por R$28 — o achado que dobra o guarda-roupa!\n\nSimples, barato e com resultado IMEDIATO.\n\n✅ Por que são melhores que os comuns:\n• Superfície de veludo: roupa não escorrega e não estica o ombro\n• Espessura de 5mm (vs 10mm+ dos plásticos): dobra o espaço disponível\n• Suportam até 3kg cada\n• Não enferrujam\n• Gancho giratório 360° — acomoda qualquer armário\n• Disponíveis em preto, bege e cinza\n\n📐 Antes: 20 peças no guarda-roupa\nDepois: 35 peças no mesmo espaço\n\n💡 Dica: coloque as roupas pesadas (casacos) nos cabides plásticos e as leves (camisetas, blusas) nesses de veludo.\n\nLink na bio 👆 — pack de 50 unidades!`,
+    tags:["#cabide","#guarda-roupa","#organizacao","#casa","#achadinhos","#shopee","#veludo","#roupa","#dicas","#homeorganization","#arrumado"]
+  },
+  {
+    id:12,title:"Luminária de mesa LED recarregável — R$39",cat:"home-office",badge:"trend",score:87,price:"R$39",
+    viralScore:{hook:85,legenda:88,visual:89},
+    keys:["luminaria","mesa","led","recarregavel","luz","estudos","escritório"],
+    hooks:[
+      "ESSA LUMINÁRIA DE MESA por R$39 tem tudo que preciso para estudar de noite.\nSem fio, recarregável e linda!\n🛒 Link na bio",
+      "Adeus olhos cansados de estudar com luz ruim!\nEssa luminária LED de R$39 mudou minha rotina de estudos.\n(link na bio 👆)",
+      "Trabalho de noite e essa luminária de R$39 foi a melhor compra do mês.\nVeja o que ela faz na legenda 👇"
+    ],
+    legenda:`💡 Luminária LED de mesa recarregável por R$39!\n\nCompacta, elegante e surpreendentemente boa.\n\n✅ Especificações:\n• 3 temperaturas de luz (quente/neutro/frio)\n• 5 níveis de brilho (15 combinações totais)\n• Recarregável via USB-C (bateria dura 8h no brilho médio)\n• Touch no cabo para ligar/ajustar\n• Design flexível: base + gooseneck (inclina em qualquer direção)\n• Não pisca (tecnologia flicker-free) — protege os olhos\n• 36 LEDs de alta eficiência\n\n🎓 Ideal para:\n• Estudos e leitura\n• Home office\n• Mesa de cabeceira\n• Quem trabalha à noite\n\n💡 Dica: use luz quente para relaxar, neutra para trabalhar, fria para estudar.\n\nLink na bio 👆 — entrega em até 7 dias!`,
+    tags:["#luminaria","#led","#homeoffice","#estudos","#mesa","#achadinhos","#shopee","#quarto","#setup","#produtividade","#iluminacao"]
+  }
+];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let selected = null;
+let hookIdx = 0;
+let filtered = [...TRENDS];
+let aiImageBase64 = null;
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+window.onload = () => { renderTrends(); renderImage(); };
+
+// ═══════════════════════════════════════════
+// TRENDS
+// ═══════════════════════════════════════════
+function renderTrends() {
+  const list = document.getElementById('trendList');
+  if (!filtered.length) { list.innerHTML = '<div class="empty">Nenhum achado encontrado.</div>'; return; }
+  list.innerHTML = filtered.map(t => `
+    <div class="trend-item ${selected?.id===t.id?'active':''}" onclick="selectTrend(${t.id})">
+      <div class="tt">${t.title}</div>
+      <div class="tm">
+        <span class="badge badge-${t.badge}">${t.badge==='hot'?'🔥 Em Alta':t.badge==='trend'?'📈 Trend':'✨ Novo'}</span>
+        <span class="cat-tag">${catLabel(t.cat)}</span>
+        <span class="price-tag">${t.price}</span>
+        <span style="margin-left:auto;font-size:.65rem;color:var(--gold)">${scoreStars(t.score)}</span>
+      </div>
+    </div>`).join('');
+}
+
+function catLabel(c){return{eletronicos:'⚡ Eletrônicos',casa:'🏠 Casa',beleza:'✨ Beleza','home-office':'💻 Home Office'}[c]||c}
+function scoreStars(s){return s>=90?'★★★★★':s>=80?'★★★★☆':s>=70?'★★★☆☆':'★★☆☆☆'}
+
+function filterTrends(q) {
+  const ql = q.toLowerCase();
+  filtered = ql ? TRENDS.filter(t => t.title.toLowerCase().includes(ql)||t.keys.some(k=>k.includes(ql))||catLabel(t.cat).toLowerCase().includes(ql)) : [...TRENDS];
+  renderTrends();
+}
+
+function selectTrend(id) {
+  selected = TRENDS.find(t=>t.id===id);
+  hookIdx = 0;
+  renderTrends();
+  document.getElementById('selectedLabel').textContent = '→ ' + selected.title;
+  generateCopy();
+  renderImage();
+}
+
+function searchWeb() {
+  const icon = document.getElementById('refreshIcon');
+  icon.className = 'spinning';
+  setTimeout(() => {
+    icon.className = '';
+    window.open('https://www.google.com/search?q=achadinhos+shopee+amazon+viral+tiktok+instagram+2026+tendencias+produtos','_blank');
+    showToast('🌐 Pesquisa de achados aberta!');
+  }, 800);
+}
+
+// ═══════════════════════════════════════════
+// COPY GENERATION
+// ═══════════════════════════════════════════
+function generateCopy() {
+  if (!selected) return;
+
+  const hookEl = document.getElementById('hookText');
+  const hook = selected.hooks[hookIdx % selected.hooks.length];
+  hookEl.textContent = hook;
+
+  const vBox = document.getElementById('hookVariants');
+  vBox.innerHTML = selected.hooks.map((h,i)=>`
+    <div style="padding:10px;background:var(--s2);border:1px solid var(--border);border-radius:7px;font-size:.78rem;line-height:1.5;cursor:pointer;transition:all .15s;white-space:pre-wrap"
+      onclick="applyHookVariant(${i})"
+      onmouseover="this.style.borderColor='var(--gold)'"
+      onmouseout="this.style.borderColor='var(--border)'">
+      <span style="font-size:.6rem;color:var(--gold);display:block;margin-bottom:4px;letter-spacing:1px">MODELO ${i+1}</span>${h}
+    </div>`).join('');
+
+  const legendaEl = document.getElementById('legendaText');
+  legendaEl.textContent = selected.legenda + '\n\nSiga @o.achadinhosdanet para mais achados! 🛍️';
+
+  document.getElementById('hashtagList').innerHTML = selected.tags.slice(0,6).map(h=>`<span class="htag" onclick="copyTag('${h}')">${h}</span>`).join('');
+
+  renderScore();
+  if (aiImageBase64) updateTextPanel();
+}
+
+function applyHookVariant(i) { hookIdx=i; generateCopy(); applyToImage(); showToast('✓ Modelo '+(i+1)+' aplicado!'); }
+function nextHook() { if(!selected)return; hookIdx=(hookIdx+1)%selected.hooks.length; generateCopy(); renderImage(); }
+function regenerateLegenda() { if(!selected)return; generateCopy(); showToast('✓ Legenda regenerada!'); }
+function applyToImage() { if(aiImageBase64) updateTextPanel(); renderImage(); showToast('✓ Texto atualizado!'); }
+
+function renderScore() {
+  if(!selected)return;
+  const s=selected.viralScore;
+  document.getElementById('scorePanel').innerHTML=`
+    <div style="margin-bottom:14px;text-align:center">
+      <div style="font-size:2.2rem;font-weight:900;font-family:'Nunito',sans-serif;color:var(--acc)">${selected.score}</div>
+      <div style="font-size:.7rem;color:var(--muted);letter-spacing:1px">SCORE DE CONVERSÃO</div>
+    </div>
+    ${sRow('🪝 Potencial do Gancho',s.hook)}
+    ${sRow('📝 Qualidade da Legenda',s.legenda)}
+    ${sRow('🖼️ Impacto Visual',s.visual)}
+    <hr class="divider">
+    <div style="font-size:.75rem;color:var(--muted);line-height:1.7">
+      <strong style="color:var(--gold);font-size:.68rem;letter-spacing:1px">DICAS DE PUBLICAÇÃO</strong><br><br>
+      ${selected.score>=90?'✦ Achado de alto potencial — publique nas próximas 12h<br>✦ Use hashtag do produto + achadinhos para alcance máximo<br>✦ Responda os primeiros "QUERO" no direct com o link':
+        selected.score>=80?'✦ Bom achado — reforce com CTA "Comenta QUERO"<br>✦ Poste no horário de pico (12h ou 20h)<br>✦ Use áudio trending para amplificar alcance':
+        '✦ Achado emergente — seja o primeiro a publicar<br>✦ Adicione uma opinião pessoal para diferenciar<br>✦ Mostre o produto em uso para aumentar conversão'}
+    </div>`;
+}
+function sRow(l,v){return`<div style="margin-bottom:10px"><div style="font-size:.72rem;margin-bottom:4px;display:flex;justify-content:space-between"><span>${l}</span><span style="color:var(--acc);font-weight:700">${v}</span></div><div class="score-bar"><div class="score-fill" style="width:${v}%"></div></div></div>`}
+
+// ═══════════════════════════════════════════
+// TABS & UTILS
+// ═══════════════════════════════════════════
+function switchTab(n){
+  const tabs=['hook','legenda','hashtags','score'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===n));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+}
+function copyText(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('📋 Copiado!'))}
+function copyHashtags(){if(!selected)return;navigator.clipboard.writeText(selected.tags.join(' ')).then(()=>showToast('📋 Hashtags copiadas!'))}
+function copyTag(t){navigator.clipboard.writeText(t).then(()=>showToast('📋 '+t))}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+
+// ═══════════════════════════════════════════
+// PROMPT BUILDER — imagens de produto
+// ═══════════════════════════════════════════
+function buildImagePrompt(trend) {
+  const scenes = {
+    1:{en:'A pair of sleek white wireless TWS earbuds floating on a dark gradient background with soft orange glow, surrounded by subtle sound wave particles, ultra clean product photography, premium minimal design, soft studio lighting.',
+       pt:'Um par de earbuds TWS sem fio branco e elegante flutuando em fundo gradiente escuro com brilho laranja suave, rodeado de partículas de ondas sonoras, fotografia de produto ultra clean, design premium minimalista, iluminação suave de estúdio.'},
+    2:{en:'A sleek magnetic car phone mount holder floating against a dark background with warm amber light, clean product shot with subtle reflections, automotive accessories photography style.',
+       pt:'Um suporte magnético veicular para celular elegante flutuando em fundo escuro com luz âmbar quente, foto limpa de produto com reflexos sutis, estilo de fotografia de acessórios automotivos.'},
+    3:{en:'A set of clean white plastic drawer organizers and storage boxes arranged in a perfect flat lay on a white surface, minimal home organization product photography, bright studio lighting, soft shadows.',
+       pt:'Um conjunto de organizadores de gaveta e caixas de armazenamento plásticos brancos e limpos arranjados em flat lay perfeito em superfície branca, fotografia minimalista de produto de organização doméstica, iluminação clara de estúdio, sombras suaves.'},
+    4:{en:'A vibrant RGB LED light strip wrapping around a modern bedroom setup, creating colorful ambient lighting in purple and blue tones, product photography showcasing the luminous effect, dark room atmosphere.',
+       pt:'Uma fita de LED RGB vibrante envolvendo um setup de quarto moderno, criando iluminação ambiente colorida em tons de roxo e azul, fotografia de produto mostrando o efeito luminoso, atmosfera de quarto escuro.'},
+    5:{en:'A sleek modern smartwatch floating against a dark gradient background, screen showing health metrics, clean product photography with soft blue-orange glow, premium wearable tech aesthetic.',
+       pt:'Um smartwatch moderno e elegante flutuando em fundo gradiente escuro, tela mostrando métricas de saúde, fotografia limpa de produto com brilho suave azul-laranja, estética premium de wearable tech.'},
+    6:{en:'A minimal wireless magnetic phone charger pad on a dark matte surface, soft orange charging glow emanating from the pad, clean tech product photography, premium minimal design.',
+       pt:'Um pad carregador sem fio magnético minimal em superfície fosca escura, brilho laranja suave de carregamento emanando do pad, fotografia limpa de produto tech, design premium minimalista.'},
+    7:{en:'A compact white handheld cordless vacuum cleaner floating on a clean white background with subtle shadow, modern home appliance product photography, bright studio lighting.',
+       pt:'Um aspirador de mão sem fio compacto branco flutuando em fundo branco limpo com sombra sutil, fotografia moderna de eletrodoméstico, iluminação clara de estúdio.'},
+    8:{en:'A skincare set of beauty products arranged in a clean flat lay on a marble surface — serum, moisturizer, sunscreen and toner bottles, beauty product photography, soft pink and white tones, minimal style.',
+       pt:'Um conjunto de produtos de skincare arranjados em flat lay limpo em superfície de mármore — frascos de sérum, hidratante, protetor solar e tônico, fotografia de produtos de beleza, tons rosa suave e branco, estilo minimal.'},
+    9:{en:'A sleek aluminum laptop stand holder on a dark wood desk, clean home office product photography, minimal and modern design, soft warm studio lighting.',
+       pt:'Um suporte para notebook em alumínio elegante em uma mesa de madeira escura, fotografia limpa de produto para home office, design minimalista e moderno, iluminação suave e quente de estúdio.'},
+    10:{en:'A premium stainless steel insulated water bottle with condensation drops floating against a dark blue background with ice cubes, clean product photography, cold temperature vibes.',
+        pt:'Uma garrafa térmica premium em aço inox com gotinhas de condensação flutuando em fundo azul escuro com cubos de gelo, fotografia limpa de produto, sensação de temperatura fria.'},
+    11:{en:'A set of beige velvet non-slip clothes hangers arranged neatly on a light background, home organization product photography, clean and minimal style, soft warm lighting.',
+        pt:'Um conjunto de cabides de veludo bege antiderrapante arranjados caprichosamente em fundo claro, fotografia de produto de organização doméstica, estilo clean e minimalista, iluminação suave e quente.'},
+    12:{en:'A sleek modern rechargeable LED desk lamp glowing warmly on a dark wood desk with notebook and coffee cup, home office and study ambiance product photography.',
+        pt:'Uma luminária de mesa LED recarregável e elegante brilhando com luz quente em uma mesa de madeira escura com caderno e xícara de café, fotografia de produto de home office e estudos.'}
+  };
+
+  const id = trend ? trend.id : null;
+  const scene = (id && scenes[id]) ? scenes[id] : {
+    en:'A stylish product floating on a dark gradient background with warm orange glow, clean e-commerce product photography, premium quality, studio lighting.',
+    pt:'Um produto elegante flutuando em fundo gradiente escuro com brilho laranja quente, fotografia limpa de produto e-commerce, qualidade premium, iluminação de estúdio.'
+  };
+
+  const styleEN = 'ultra-realistic product photography, 9:16 vertical format, 4K quality, clean background, professional studio lighting, no text, no watermarks, commercial photography style';
+
+  const promptEN = `${scene.en}, ${styleEN}`;
+  const promptPT =
+`Crie uma fotografia de produto ultrarrealista e profissional, estilo e-commerce premium, formato vertical 9:16 (1080x1920 pixels).
+
+PRODUTO A FOTOGRAFAR — "${trend ? trend.title : 'Produto achadinhos'}":
+${scene.pt}
+
+ESTILO OBRIGATÓRIO: fotorrealismo extremo, iluminação profissional de estúdio, fundo neutro ou gradiente moderno, sem texto, sem letras, sem marcas d'água, qualidade 4K comercial.
+
+FORMATO: vertical 9:16 (retrato), proporção 1080x1920 pixels.`;
+
+  return { en: promptEN, pt: promptPT };
+}
+
+// ═══════════════════════════════════════════
+// IMAGE GENERATION — Pollinations.ai (Flux)
+// ═══════════════════════════════════════════
+async function generateAIImage() {
+  const overlay = document.getElementById('imgLoading');
+  const loadText = document.getElementById('loadingText');
+  overlay.classList.add('show');
+  loadText.innerHTML = 'Gerando com<br>Flux AI...';
+
+  const prompt = buildImagePrompt(selected).en;
+  const seed = Math.floor(Math.random() * 9999999);
+  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=576&height=1024&nologo=true&model=flux-realism&seed=${seed}&enhance=true`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => { aiImageBase64 = reader.result.split(',')[1]; resolve(); };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+    document.getElementById('aiBadge').textContent = '✨ FLUX REALISM';
+    document.getElementById('aiBadge').classList.add('show');
+    document.getElementById('clearAiBtn').style.display = 'block';
+    renderImage();
+    showToast('✨ Imagem de produto gerada!');
+  } catch (e) {
+    showToast('❌ Erro: ' + e.message.substring(0, 60));
+  } finally {
+    overlay.classList.remove('show');
+  }
+}
+
+function clearAIImage() {
+  aiImageBase64 = null;
+  document.getElementById('aiBadge').classList.remove('show');
+  document.getElementById('clearAiBtn').style.display = 'none';
+  document.getElementById('textPanel').style.display = 'none';
+  document.getElementById('downloadNote').style.display = 'none';
+  renderImage();
+  showToast('✓ Voltando para canvas manual');
+}
+
+function showTextPanel() {
+  document.getElementById('textPanel').style.display = 'block';
+  document.getElementById('downloadNote').style.display = 'block';
+  updateTextPanel();
+}
+function updateTextPanel() {
+  const hookEl = document.getElementById('hookText');
+  const panelEl = document.getElementById('panelHookText');
+  if (!hookEl || !panelEl) return;
+  const t = hookEl.textContent || '';
+  panelEl.textContent = t.includes('←') ? '← Selecione um achado para gerar o gancho' : t;
+}
+function copyPanelText() {
+  const el = document.getElementById('panelHookText');
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => showToast('📋 Texto copiado!'));
+}
+
+// ═══════════════════════════════════════════
+// GOOGLE GEMINI MODAL
+// ═══════════════════════════════════════════
+function generateGeminiImage() {
+  // Atualiza o texto do prompt no modal
+  const prompt = buildImagePrompt(selected).pt;
+  document.getElementById('modalPromptText').textContent = prompt;
+  // Reseta botão de copiar
+  const btn = document.getElementById('btnCopyPrompt');
+  btn.classList.remove('copied');
+  btn.innerHTML = '📋 Copiar Prompt';
+  // Abre o modal
+  document.getElementById('geminiModal').classList.add('show');
+}
+
+function closeGeminiModal() {
+  document.getElementById('geminiModal').classList.remove('show');
+}
+
+function closeModalOnBg(e) {
+  if (e.target === document.getElementById('geminiModal')) closeGeminiModal();
+}
+
+function copyModalPrompt() {
+  const text = document.getElementById('modalPromptText').textContent;
+  if (!text || text.includes('←')) { showToast('⚠️ Selecione um achado primeiro!'); return; }
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btnCopyPrompt');
+    btn.classList.add('copied');
+    btn.innerHTML = '✅ Prompt Copiado!';
+    showToast('📋 Prompt copiado! Agora anexe a foto do produto no Gemini.');
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copiar Prompt'; }, 3000);
+  });
+}
+
+function openGemini() {
+  window.open('https://gemini.google.com/app', '_blank');
+  showToast('🔗 Gemini aberto! Anexe a foto do produto 📸');
+}
+
+// Fechar modal com ESC
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeGeminiModal(); });
+
+// ═══════════════════════════════════════════
+// AUDIO GENERATION
+// ═══════════════════════════════════════════
+async function generateAudio() {
+  const apiKey = document.getElementById('geminiKey').value.trim();
+  const legendaEl = document.getElementById('legendaText');
+  const text = legendaEl.textContent.trim();
+  if (!text || text.includes('←')) { showToast('⚠️ Selecione um achado primeiro!'); return; }
+
+  const btn = document.getElementById('audioBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Gerando áudio...';
+
+  const voice = document.getElementById('voiceSelect').value;
+  const trend = selected ? selected.title.replace(/[^a-zA-Z0-9]/g,'-').substring(0,30) : 'legenda';
+
+  const deliverAudio = (blob, ext) => {
+    const url = URL.createObjectURL(blob);
+    const player = document.getElementById('audioPlayer');
+    player.src = url;
+    document.getElementById('audioPlayerWrap').style.display = 'block';
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `achadinhos_${trend}_${Date.now()}.${ext}`;
+    a.click();
+    showToast('🎵 Áudio gerado e baixado!');
+  };
+
+  const narrativePrompt = `Leia o texto a seguir em português do Brasil, com voz animada, entusiasmada e confiante, como uma pessoa recomendando um ótimo produto para um amigo. Ritmo dinâmico, pausas naturais, entonação empolgante:\n\n${text}`;
+
+  if (apiKey) {
+    const ttsModels = ['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts','gemini-2.0-flash-live-001'];
+    for (const model of ttsModels) {
+      try {
+        btn.textContent = `⏳ ${model.split('-').slice(0,3).join('-')}...`;
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          { method:'POST', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+              contents:[{parts:[{text:narrativePrompt}]}],
+              generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:voice}}}}
+            })
+          }
+        );
+        if (!res.ok){const err=await res.json();console.warn(`${model}:`,err.error?.message);continue;}
+        const data = await res.json();
+        const audioPart = data.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+        if (!audioPart?.data){console.warn(`${model}: sem dados`);continue;}
+        deliverAudio(pcmToMP3(audioPart.data),'mp3');
+        btn.disabled=false;btn.textContent='🎵 Gerar e Baixar Áudio (MP3)';
+        return;
+      } catch(e){console.warn(`${model}:`,e);}
+    }
+    showToast('⚠️ Gemini TTS indisponível — usando voz gratuita...');
+  }
+
+  try {
+    btn.textContent = '⏳ Voz alternativa...';
+    const seVoice = 'Vitoria';
+    const shortText = text.substring(0, 550);
+    const seUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${seVoice}&text=${encodeURIComponent(shortText)}`;
+    const res = await fetch(seUrl);
+    if (!res.ok) throw new Error(`StreamElements: HTTP ${res.status}`);
+    const blob = await res.blob();
+    deliverAudio(blob,'mp3');
+    if (!apiKey) showToast('💡 Insira Gemini Key para voz de alta qualidade!');
+  } catch(e) {
+    showToast('❌ Erro no áudio: ' + e.message.substring(0,60));
+  } finally {
+    btn.disabled=false;
+    btn.textContent='🎵 Gerar e Baixar Áudio (MP3)';
+  }
+}
+
+function pcmToMP3(base64PCM, sampleRate=24000) {
+  const bin = atob(base64PCM);
+  const pcm16 = new Int16Array(bin.length/2);
+  for(let i=0;i<pcm16.length;i++) pcm16[i]=(bin.charCodeAt(i*2)&0xff)|((bin.charCodeAt(i*2+1)&0xff)<<8);
+  const encoder = new lamejs.Mp3Encoder(1,sampleRate,128);
+  const mp3Chunks=[];
+  const blockSize=1152;
+  for(let i=0;i<pcm16.length;i+=blockSize){const chunk=pcm16.subarray(i,i+blockSize);const encoded=encoder.encodeBuffer(chunk);if(encoded.length>0)mp3Chunks.push(new Uint8Array(encoded));}
+  const flushed=encoder.flush();if(flushed.length>0)mp3Chunks.push(new Uint8Array(flushed));
+  return new Blob(mp3Chunks,{type:'audio/mp3'});
+}
+
+// ═══════════════════════════════════════════
+// CANVAS IMAGE RENDERER
+// ═══════════════════════════════════════════
+function drawImageCover(ctx,img,x,y,w,h){
+  const iR=img.naturalWidth/img.naturalHeight,cR=w/h;
+  let sx,sy,sw,sh;
+  if(iR>cR){sh=img.naturalHeight;sw=sh*cR;sx=(img.naturalWidth-sw)/2;sy=0;}
+  else{sw=img.naturalWidth;sh=sw/cR;sx=0;sy=(img.naturalHeight-sh)/2;}
+  ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
+}
+
+function renderImage(){
+  const canvas=document.getElementById('previewCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=216,H=384;
+  const style=document.getElementById('bgStyle').value;
+  const intensity=parseFloat(document.getElementById('glowIntensity').value)/100;
+  const hex=document.getElementById('glowColor').value;
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const pos=document.getElementById('textPos').value;
+
+  ctx.clearRect(0,0,W,H);
+
+  if(aiImageBase64){
+    const img=new Image();
+    img.onload=()=>{
+      drawImageCover(ctx,img,0,0,W,H);
+      drawOverlayGlow(ctx,W,H,intensity*.6,r,g,b);
+      drawVignette(ctx,W,H);
+      showTextPanel();
+    };
+    img.src='data:image/png;base64,'+aiImageBase64;
+  } else {
+    drawBG(ctx,W,H,style,intensity,r,g,b);
+    drawProductElements(ctx,W,H,style);
+    drawOverlayGlow(ctx,W,H,intensity*.8,r,g,b);
+    drawVignette(ctx,W,H);
+    const txt=getHookText();
+    const price=selected?selected.price:null;
+    drawText(ctx,W,H,txt,pos,price);
+  }
+}
+
+function getHookText(){
+  const el=document.getElementById('hookText');
+  return(el&&el.textContent&&!el.textContent.includes('←'))
+    ?el.textContent
+    :'ESSE ACHADO vai te surpreender!\n\nPreço absurdo — não vai durar!\n🛒 Link na bio 👆';
+}
+
+// ── BACKGROUNDS ──
+function drawBG(ctx,W,H,style,intensity,r,g,b){
+  let bg;
+  if(style==='oferta'){
+    bg=ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#0e0400');bg.addColorStop(.4,'#1a0700');bg.addColorStop(.7,'#200a00');bg.addColorStop(1,'#0a0300');
+  } else if(style==='clean'){
+    bg=ctx.createLinearGradient(0,0,W,H);
+    bg.addColorStop(0,'#0d0b09');bg.addColorStop(.5,'#161210');bg.addColorStop(1,'#0d0b09');
+  } else if(style==='neon'){
+    bg=ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#04030d');bg.addColorStop(.5,'#07051a');bg.addColorStop(1,'#03020a');
+  } else if(style==='shopee'){
+    bg=ctx.createLinearGradient(0,0,W*.7,H);
+    bg.addColorStop(0,'#120500');bg.addColorStop(.5,'#1e0a00');bg.addColorStop(1,'#100400');
+  } else {
+    bg=ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#0a0905');bg.addColorStop(1,'#050403');
+  }
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+}
+
+// ── PRODUCT DECORATIVE ELEMENTS ──
+function drawProductElements(ctx,W,H,style){
+  ctx.save();
+  if(style==='oferta'){
+    // Burst radial behind product
+    const burst=ctx.createRadialGradient(W/2,H*.42,0,W/2,H*.42,W*.55);
+    burst.addColorStop(0,'rgba(255,100,0,.12)');burst.addColorStop(.6,'rgba(255,60,0,.05)');burst.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=burst;ctx.fillRect(0,0,W,H);
+    // Deal badge top
+    ctx.fillStyle='rgba(220,40,0,.9)';
+    ctx.beginPath();ctx.roundRect(W*.1,H*.06,W*.8,H*.065,6);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold '+Math.floor(W*.046)+'px Nunito,sans-serif';
+    ctx.textAlign='center';ctx.fillText('🔥 OFERTA RELÂMPAGO',W/2,H*.103);
+  } else if(style==='neon'){
+    // Neon circle
+    ctx.strokeStyle='rgba(180,0,255,.18)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(W/2,H*.42,W*.42,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle='rgba(0,180,255,.12)';ctx.lineWidth=.8;
+    ctx.beginPath();ctx.arc(W/2,H*.42,W*.32,0,Math.PI*2);ctx.stroke();
+  } else if(style==='shopee'){
+    // Shopee-like diagonal stripes subtle
+    ctx.globalAlpha=.04;
+    for(let i=-H;i<W+H;i+=22){
+      ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i+H,H);
+      ctx.strokeStyle='#ff6b00';ctx.lineWidth=10;ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+    // Bottom price box
+    ctx.fillStyle='rgba(220,80,0,.85)';
+    ctx.beginPath();ctx.roundRect(W*.08,H*.77,W*.84,H*.07,8);ctx.fill();
+    const priceText=selected?selected.price:'R$??';
+    ctx.fillStyle='#fff';ctx.font='bold '+Math.floor(W*.055)+'px Nunito,sans-serif';
+    ctx.textAlign='center';ctx.fillText('🏷️ SÓ '+priceText+' NA SHOPEE!',W/2,H*.815);
+  } else if(style==='clean'){
+    // Subtle product ring
+    const pr=ctx.createRadialGradient(W/2,H*.4,0,W/2,H*.4,W*.35);
+    pr.addColorStop(0,'rgba(255,160,40,.05)');pr.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=pr;ctx.fillRect(0,0,W,H);
+  }
+  ctx.restore();
+}
+
+// ── GLOW ──
+function drawOverlayGlow(ctx,W,H,intensity,r,g,b){
+  const bg=ctx.createRadialGradient(W/2,H*.85,0,W/2,H*.85,H*.5);
+  bg.addColorStop(0,`rgba(${r},${g},${b},${intensity*.6})`);
+  bg.addColorStop(.5,`rgba(${Math.floor(r*.7)},${Math.floor(g*.5)},${Math.floor(b*.3)},${intensity*.2})`);
+  bg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  const cg=ctx.createRadialGradient(W/2,H*.35,0,W/2,H*.35,W*.4);
+  cg.addColorStop(0,`rgba(${r},${Math.floor(g*.6)},${Math.floor(b*.2)},${intensity*.1})`);
+  cg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=cg;ctx.fillRect(0,0,W,H);
+}
+
+// ── VIGNETTE ──
+function drawVignette(ctx,W,H){
+  const v=ctx.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,H*.65);
+  v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.75)');
+  ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
+  const td=ctx.createLinearGradient(0,0,0,H*.16);
+  td.addColorStop(0,'rgba(0,0,0,.5)');td.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=td;ctx.fillRect(0,0,W,H*.16);
+}
+
+// ── TEXT + HANDLE + PRICE ──
+function drawText(ctx,W,H,rawText,pos,price){
+  const handle = '@o.achadinhosdanet';
+  const fullText = rawText.trimEnd() + (price?'\n\n💰 '+price:'')+'\n\n'+handle;
+  const lines = fullText.split('\n');
+  const maxW = W*0.86;
+
+  const wrapped=[];
+  lines.forEach(line=>{
+    if(!line.trim()){wrapped.push({text:'',isHandle:false,isPrice:false,isCTA:false});return;}
+    const isHandle=line.trim()===handle;
+    const isPrice=line.startsWith('💰');
+    const isCTA=line.includes('🛒')||line.includes('👆')||line.includes('👇');
+    const sz=isHandle?Math.floor(W*.038):isPrice?Math.floor(W*.058):isCTA?Math.floor(W*.046):Math.floor(W*.058);
+    ctx.font=`bold ${sz}px Nunito,sans-serif`;
+    const words=line.split(' ');let cur='';
+    words.forEach(w=>{
+      const test=cur+(cur?' ':'')+w;
+      if(ctx.measureText(test).width>maxW&&cur){wrapped.push({text:cur,isHandle,isPrice,isCTA});cur=w;}
+      else cur=test;
+    });
+    if(cur)wrapped.push({text:cur,isHandle,isPrice,isCTA});
+  });
+
+  const lh=H*.046;
+  const totalH=wrapped.length*lh;
+  let startRatio=pos==='bottom'?0.52:pos==='top'?0.06:0.28;
+  const bgS=H*(startRatio-.02),bgE=H*(pos==='top'?0.72:0.96);
+  const tbg=ctx.createLinearGradient(0,bgS,0,bgE);
+  tbg.addColorStop(0,'rgba(0,0,0,0)');tbg.addColorStop(.15,'rgba(0,0,0,.5)');tbg.addColorStop(1,'rgba(0,0,0,.82)');
+  ctx.fillStyle=tbg;ctx.fillRect(0,bgS,W,bgE-bgS);
+
+  ctx.save();ctx.textAlign='center';
+  let startY=pos==='bottom'?H*.57:pos==='top'?H*.11:H/2-totalH/2+H*.05;
+
+  wrapped.forEach((item,i)=>{
+    if(!item.text)return;
+    const sz=item.isHandle?Math.floor(W*.038):item.isPrice?Math.floor(W*.058):item.isCTA?Math.floor(W*.046):Math.floor(W*.058);
+    ctx.font=`bold ${sz}px Nunito,sans-serif`;
+    ctx.shadowColor='rgba(0,0,0,.98)';ctx.shadowBlur=6;ctx.shadowOffsetX=1;ctx.shadowOffsetY=1;
+    if(item.isHandle)ctx.fillStyle='rgba(255,183,0,.85)';
+    else if(item.isPrice)ctx.fillStyle='rgba(100,255,130,1)';
+    else if(item.isCTA)ctx.fillStyle='rgba(255,220,80,1)';
+    else ctx.fillStyle='#ffffff';
+    ctx.fillText(item.text,W/2,startY+i*lh);
+  });
+  ctx.restore();
+}
+
+// ═══════════════════════════════════════════
+// DOWNLOAD (1080×1920)
+// ═══════════════════════════════════════════
+function downloadImage(){
+  const HR=document.createElement('canvas');
+  HR.width=1080;HR.height=1920;
+  const ctx=HR.getContext('2d');
+  const scale=1080/216;
+  const style=document.getElementById('bgStyle').value;
+  const intensity=parseFloat(document.getElementById('glowIntensity').value)/100;
+  const hex=document.getElementById('glowColor').value;
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const pos=document.getElementById('textPos').value;
+  const txt=getHookText();
+  const price=selected?selected.price:null;
+  const trend=selected?selected.title.replace(/[^a-zA-Z0-9]/g,'-').substring(0,30):'achado';
+
+  if(aiImageBase64){
+    const img=new Image();
+    img.onload=()=>{
+      drawImageCover(ctx,img,0,0,1080,1920);
+      ctx.scale(scale,scale);
+      drawOverlayGlow(ctx,216,384,intensity*.6,r,g,b);
+      drawVignette(ctx,216,384);
+      const a=document.createElement('a');
+      a.download=`achadinhos_${trend}_${Date.now()}.png`;
+      a.href=HR.toDataURL('image/png');
+      a.click();
+      showToast('⬇️ Imagem limpa baixada! (1080×1920)');
+    };
+    img.src='data:image/png;base64,'+aiImageBase64;
+  } else {
+    ctx.scale(scale,scale);
+    drawBG(ctx,216,384,style,intensity,r,g,b);
+    drawProductElements(ctx,216,384,style);
+    drawOverlayGlow(ctx,216,384,intensity*.8,r,g,b);
+    drawVignette(ctx,216,384);
+    drawText(ctx,216,384,txt,pos,price);
+    const a=document.createElement('a');
+    a.download=`achadinhos_${trend}_${Date.now()}.png`;
+    a.href=HR.toDataURL('image/png');
+    a.click();
+    showToast('⬇️ Download iniciado! (1080×1920)');
+  }
+}
+</script>
+</body>
+</html>
