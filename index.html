@@ -283,7 +283,7 @@ audio{width:100%;border-radius:6px;background:var(--s2)}
         <div class="copy-label">HASHTAGS DO ACHADO</div>
         <div id="hashtagList" class="hashtag-wrap"><span style="color:var(--muted);font-size:.82rem">← Selecione um achado</span></div>
         <div class="copy-actions" style="margin-top:13px">
-          <button class="btn btn-sm" onclick="copyHashtags()">📋 Copiar Todas</button>
+          <button class="btn btn-sm" onclick="copyHashtags()">📋 Copiar 5 Hashtags</button>
         </div>
         <hr class="divider">
         <div class="copy-label">HASHTAGS FIXAS DO PERFIL</div>
@@ -675,7 +675,7 @@ function generateCopy() {
   const legendaEl = document.getElementById('legendaText');
   legendaEl.textContent = selected.legenda + '\n\nSiga @o.achadinhosdanet para mais achados! 🛍️';
 
-  document.getElementById('hashtagList').innerHTML = selected.tags.slice(0,6).map(h=>`<span class="htag" onclick="copyTag('${h}')">${h}</span>`).join('');
+  document.getElementById('hashtagList').innerHTML = selected.tags.slice(0,5).map(h=>`<span class="htag" onclick="copyTag('${h}')">${h}</span>`).join('');
 
   renderScore();
   if (aiImageBase64) updateTextPanel();
@@ -717,7 +717,7 @@ function switchTab(n){
   document.getElementById('tab-'+n).classList.add('active');
 }
 function copyText(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('📋 Copiado!'))}
-function copyHashtags(){if(!selected)return;navigator.clipboard.writeText(selected.tags.join(' ')).then(()=>showToast('📋 Hashtags copiadas!'))}
+function copyHashtags(){if(!selected)return;navigator.clipboard.writeText(selected.tags.slice(0,5).join(' ')).then(()=>showToast('📋 Hashtags copiadas!'))}
 function copyTag(t){navigator.clipboard.writeText(t).then(()=>showToast('📋 '+t))}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
 
