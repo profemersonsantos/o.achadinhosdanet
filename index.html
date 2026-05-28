@@ -132,6 +132,45 @@ audio{width:100%;border-radius:6px;background:var(--s2)}
 /* DEAL BADGE no canvas */
 .deal-badge-wrap{text-align:center;margin-bottom:4px}
 
+/* ═══ AI SEARCH ═══ */
+.ai-search-box{
+  background:linear-gradient(135deg,rgba(80,30,160,.18),rgba(120,50,220,.1));
+  border:1px solid rgba(140,60,255,.3);border-radius:10px;
+  padding:11px 12px;margin-bottom:10px;
+}
+.ai-search-label{font-size:.62rem;color:#c080ff;letter-spacing:2px;font-weight:700;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:5px;}
+.ai-search-row{display:flex;gap:6px;margin-bottom:7px;}
+.ai-search-input{
+  flex:1;background:rgba(0,0,0,.35);border:1px solid rgba(140,60,255,.25);
+  border-radius:7px;padding:8px 11px;color:var(--text);font-size:.8rem;
+  font-family:'Inter',sans-serif;transition:border-color .2s;
+}
+.ai-search-input:focus{outline:none;border-color:rgba(160,80,255,.6);}
+.ai-search-input::placeholder{color:var(--muted);}
+.btn-ai-search{
+  background:linear-gradient(135deg,#5a1a9b,#9922ee);color:#fff;border:none;
+  border-radius:7px;padding:8px 13px;cursor:pointer;font-size:.78rem;font-weight:700;
+  font-family:'Inter',sans-serif;transition:all .18s;white-space:nowrap;
+  display:flex;align-items:center;gap:5px;
+}
+.btn-ai-search:hover{filter:brightness(1.15);transform:translateY(-1px);}
+.btn-ai-search:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.ai-key-row{display:flex;gap:6px;align-items:center;}
+.ai-key-input{
+  flex:1;background:rgba(0,0,0,.4);border:1px solid rgba(140,60,255,.2);
+  border-radius:7px;padding:6px 10px;color:var(--text);font-size:.72rem;
+  font-family:monospace;letter-spacing:.5px;
+}
+.ai-key-input:focus{outline:none;border-color:rgba(160,80,255,.5);}
+.ai-key-input::placeholder{color:var(--muted);font-family:'Inter',sans-serif;letter-spacing:0;}
+.ai-key-note{font-size:.6rem;color:rgba(180,120,255,.7);margin-top:5px;line-height:1.4;}
+.ai-result-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(140,60,255,.18);border:1px solid rgba(140,60,255,.3);
+  border-radius:20px;padding:2px 9px;font-size:.62rem;color:#c080ff;font-weight:700;
+}
+.ai-spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(200,120,255,.3);border-top-color:#c080ff;border-radius:50%;animation:spin .7s linear infinite;}
+
 /* ═══ GEMINI MODAL ═══ */
 .modal-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);
@@ -222,8 +261,36 @@ audio{width:100%;border-radius:6px;background:var(--s2)}
   <div class="panel">
     <div class="ph"><h2>🔥 ACHADOS EM ALTA</h2><p>Clique em um achado para gerar o conteúdo</p></div>
     <div class="pb">
+
+      <!-- BUSCA COM IA -->
+      <div class="ai-search-box">
+        <div class="ai-search-label">✨ Buscar Achados com IA</div>
+        <div class="ai-search-row">
+          <input class="ai-search-input" id="aiSearchInput" type="text"
+            placeholder="Deixe vazio para gerar automaticamente..."
+            onkeydown="if(event.key==='Enter')searchWithAI()">
+          <button class="btn-ai-search" id="aiSearchBtn" onclick="searchWithAI()">
+            <span id="aiSearchIcon">🤖</span> Gerar
+          </button>
+        </div>
+        <div class="ai-key-row">
+          <input class="ai-key-input" id="anthropicKey" type="password" placeholder="🔑 Cole sua chave Anthropic API aqui...">
+        </div>
+        <div class="ai-key-note">
+          Chave gratuita em <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:#c080ff">console.anthropic.com →</a>
+          &nbsp;·&nbsp; Clique <b style="color:#c080ff">Gerar</b> sem digitar nada para sugestão automática. Cada clique troca a categoria.
+        </div>
+      </div>
+
+      <!-- FILTRO MANUAL -->
       <input class="searchbar" type="text" placeholder="🔍 Filtrar por produto..." oninput="filterTrends(this.value)">
-      <button class="btn btn-gold btn-full" onclick="searchWeb()"><span id="refreshIcon">🔄</span> Buscar Novos Achados</button>
+
+      <!-- CONTADOR DE RESULTADOS IA -->
+      <div id="aiResultBadge" style="display:none;margin-bottom:8px;">
+        <span class="ai-result-badge">✨ <span id="aiResultCount">0</span> achados gerados pela IA</span>
+        <button onclick="clearAITrends()" style="background:transparent;border:none;color:var(--muted);font-size:.7rem;cursor:pointer;margin-left:6px;">✕ limpar</button>
+      </div>
+
       <div id="trendList"></div>
     </div>
   </div>
@@ -614,8 +681,9 @@ function renderTrends() {
   const list = document.getElementById('trendList');
   if (!filtered.length) { list.innerHTML = '<div class="empty">Nenhum achado encontrado.</div>'; return; }
   list.innerHTML = filtered.map(t => `
-    <div class="trend-item ${selected?.id===t.id?'active':''}" onclick="selectTrend(${t.id})">
-      <div class="tt">${t.title}</div>
+    <div class="trend-item ${selected?.id===t.id?'active':''}" onclick="selectTrend(${t.id})"
+      style="${t._ai?'border-color:rgba(140,60,255,.35);background:rgba(100,30,200,.06)':''}">
+      <div class="tt">${t._ai?'<span style="font-size:.58rem;color:#c080ff;background:rgba(140,60,255,.18);padding:1px 6px;border-radius:10px;margin-right:5px;vertical-align:middle;">✨IA</span>':''}${t.title}</div>
       <div class="tm">
         <span class="badge badge-${t.badge}">${t.badge==='hot'?'🔥 Em Alta':t.badge==='trend'?'📈 Trend':'✨ Novo'}</span>
         <span class="cat-tag">${catLabel(t.cat)}</span>
@@ -706,6 +774,163 @@ function renderScore() {
     </div>`;
 }
 function sRow(l,v){return`<div style="margin-bottom:10px"><div style="font-size:.72rem;margin-bottom:4px;display:flex;justify-content:space-between"><span>${l}</span><span style="color:var(--acc);font-weight:700">${v}</span></div><div class="score-bar"><div class="score-fill" style="width:${v}%"></div></div></div>`}
+
+// ═══════════════════════════════════════════
+// AI SEARCH — Anthropic API
+// ═══════════════════════════════════════════
+let aiGeneratedIds = []; // rastreia IDs gerados pela IA para poder limpar
+
+// Categorias rotativas para geração automática
+const AUTO_QUERIES = [
+  'gadgets eletrônicos baratos e virais para casa e cozinha',
+  'acessórios de celular e tecnologia com ótimo custo-benefício',
+  'produtos de organização e decoração para quarto e sala',
+  'itens de beleza e skincare baratos com resultado comprovado',
+  'equipamentos de home office e estudo com preço acessível',
+  'gadgets fitness e saúde baratos e práticos do dia a dia',
+  'produtos virais de cozinha que facilitam a vida',
+  'acessórios de moda e bolsas baratos e estilosos',
+  'produtos infantis criativos e educativos com bom preço',
+  'achados pet shop baratos para cão e gato',
+];
+let autoQueryIdx = 0;
+
+async function searchWithAI() {
+  const apiKey = document.getElementById('anthropicKey').value.trim();
+  let query    = document.getElementById('aiSearchInput').value.trim();
+
+  if (!apiKey) { showToast('⚠️ Cole sua chave Anthropic API primeiro!'); document.getElementById('anthropicKey').focus(); return; }
+
+  // Se campo vazio: usa categoria automática rotativa
+  if (!query) {
+    query = AUTO_QUERIES[autoQueryIdx % AUTO_QUERIES.length];
+    autoQueryIdx++;
+    document.getElementById('aiSearchInput').value = query;
+    // Limpa depois de 2s para a próxima busca ficar vazia novamente
+    setTimeout(() => { document.getElementById('aiSearchInput').value = ''; }, 2000);
+  }
+
+  // UI: loading
+  const btn  = document.getElementById('aiSearchBtn');
+  const icon = document.getElementById('aiSearchIcon');
+  btn.disabled = true;
+  icon.outerHTML = '<span id="aiSearchIcon" class="ai-spinner"></span>';
+
+  const prompt = `Você é um especialista em marketing de afiliados e achadinhos no Brasil para Instagram e TikTok.
+
+O usuário buscou: "${query}"
+
+Gere EXATAMENTE 3 achados/produtos relacionados a essa busca, formatados como um array JSON válido.
+Cada achado deve seguir EXATAMENTE esta estrutura (sem campos extras, sem texto fora do JSON):
+
+[
+  {
+    "id": 9001,
+    "title": "Título do produto com preço (ex: Fone TWS por R$38)",
+    "cat": "eletronicos",
+    "badge": "hot",
+    "score": 92,
+    "price": "R$XX",
+    "viralScore": {"hook": 90, "legenda": 88, "visual": 86},
+    "keys": ["palavra1", "palavra2", "palavra3"],
+    "hooks": [
+      "GANCHO 1 em letras maiúsculas impactante\\nSegunda linha do gancho.\\n🛒 Link na bio!",
+      "GANCHO 2 diferente\\nSegunda linha.\\n(link na bio 👆)",
+      "Gancho 3 com abordagem diferente\\nDetalhes.\\n👇 veja mais"
+    ],
+    "legenda": "Emoji Título do post\\n\\nDescricao do produto, relato pessoal.\\n\\n✅ O que tem:\\n• Item 1\\n• Item 2\\n• Item 3\\n\\n💡 Dica de uso.\\n\\nLink na bio 👆",
+    "tags": ["#tag1", "#tag2", "#tag3", "#tag4", "#tag5", "#tag6", "#tag7", "#tag8", "#tag9", "#tag10", "#tag11"]
+  }
+]
+
+Regras obrigatórias:
+- "cat" deve ser um de: "eletronicos", "casa", "beleza", "home-office"
+- "badge" deve ser: "hot", "trend" ou "new"
+- "score" entre 75 e 98
+- "price" em reais brasileiros com valor realista e barato (R$15 a R$150)
+- "hooks" devem começar com texto em MAIÚSCULAS impactante
+- "legenda" deve mencionar o preço e ter CTA "Link na bio 👆"
+- "tags" deve ter exatamente 11 hashtags em português relevantes ao produto
+- IDs devem ser únicos começando em 9001, 9002, 9003
+- Retorne APENAS o JSON, sem explicações, sem markdown, sem \`\`\`json`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 3000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const raw  = data.content?.[0]?.text || '';
+
+    // Extrai o JSON mesmo que venha com texto ao redor
+    const jsonMatch = raw.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('Resposta da IA não continha JSON válido.');
+
+    const novos = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(novos) || novos.length === 0) throw new Error('Array vazio na resposta.');
+
+    // Garante IDs únicos únicos mesmo em buscas consecutivas
+    const baseId = Date.now();
+    novos.forEach((t, i) => {
+      t.id = baseId + i;
+      t.viralScore = t.viralScore || {hook:85,legenda:82,visual:80};
+      t.keys  = t.keys  || [];
+      t.tags  = (t.tags  || []).slice(0,11);
+      t.hooks = (t.hooks || []).slice(0,3);
+      // Marca visualmente como gerado por IA
+      t._ai = true;
+      TRENDS.unshift(t);       // adiciona no topo da lista
+      aiGeneratedIds.push(t.id);
+    });
+
+    filtered = [...TRENDS];
+    renderTrends();
+
+    // Atualiza badge de contagem
+    document.getElementById('aiResultBadge').style.display = 'block';
+    document.getElementById('aiResultCount').textContent = aiGeneratedIds.length;
+
+    // Seleciona automaticamente o primeiro resultado
+    selectTrend(novos[0].id);
+    showToast(`✨ ${novos.length} achados gerados pela IA!`);
+
+  } catch(e) {
+    console.error('AI Search error:', e);
+    showToast('❌ Erro: ' + (e.message || 'verifique sua chave API').substring(0, 70));
+  } finally {
+    btn.disabled = false;
+    document.getElementById('aiSearchIcon').outerHTML = '<span id="aiSearchIcon">🤖</span>';
+  }
+}
+
+function clearAITrends() {
+  aiGeneratedIds.forEach(id => {
+    const idx = TRENDS.findIndex(t => t.id === id);
+    if (idx > -1) TRENDS.splice(idx, 1);
+  });
+  aiGeneratedIds = [];
+  filtered = [...TRENDS];
+  if (selected && selected._ai) { selected = null; document.getElementById('selectedLabel').textContent = 'Nenhum achado selecionado'; }
+  renderTrends();
+  document.getElementById('aiResultBadge').style.display = 'none';
+  showToast('🗑️ Achados da IA removidos.');
+}
 
 // ═══════════════════════════════════════════
 // TABS & UTILS
